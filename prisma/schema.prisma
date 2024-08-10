@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client { // which creates the prims-client to submitting the queries to actual db 
+  provider = "prisma-client-js"
+}
+
+datasource db { // has a provider which represent the db and uri that helps to cojnnect to our db
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// data - models or the schema of our tables 
+
+model User{
+  id  Int @id @default(autoincrement())
+  email  String @unique
+  lastname  String? // optional porperty
+  password  String 
+  todos Todo[] // for each user it can be empty or filled with the actual Todo documents 
+}
+
+// NOTE ---> here in the both data-models we have defined the property as todos and author which will only  resides inside the prisma level for the prisma/client to run the methods and perform CRUD on it :) , on the actual postgre database will not contain either of them :)
+
+model Todo {
+  id  Int @id @default(autoincrement())
+  title String @unique @db.VarChar(255)
+  description String @db.VarChar(255)
+  completed Boolean? @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // updates automatically when todo gets updated
+  userId Int
+  author User @relation(fields: [userId] , references: [id])
+}
